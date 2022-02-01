@@ -26,4 +26,7 @@ const Checklist = initChecklist(sequelize, DataTypes);
 const Nota = initNota(sequelize, DataTypes);
 const Usuario = initUsuario(sequelize, DataTypes);
 
+Nota.hasMany(Checklist, { as: "checklists", foreignKey: "notaId" });
+Nota.belongsTo(Usuario, { as: "usuario", foreignKey: "usuarioId" });
+
 module.exports = { sequelize, Sequelize, Checklist, Nota, Usuario };

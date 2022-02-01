@@ -1,24 +1,30 @@
 const { Router } = require("express");
+const { criar, listar } = require("../controller/usuario");
 const router = Router();
 
 // Devolver uma lista de objetos ou um objeto
-router.get("/", (req, res) => {
-  res.json([
-    {
-      id: 1,
-      nome: "Alan",
-    },
-    {
-      id: 2,
-      nome: "João",
-    },
-  ]);
+router.get("/", async (req, res) => {
+  try {
+    const usuarios = await listar();
+
+    res.send(usuarios);
+  } catch (erro) {
+    console.log(erro);
+    res.status(500).send({ erro });
+  }
 });
 
 // Criar um novo recurso
-router.post("/", (req, res) => {
-  console.log(req.body);
-  res.send("Rota para criar usuários");
+router.post("/", async (req, res) => {
+  try {
+    const { nome, email, senha } = req.body;
+
+    const usuarioCriado = await criar(nome, email, senha);
+
+    res.send(usuarioCriado);
+  } catch (erro) {
+    res.status(500).send({ erro });
+  }
 });
 
 // Atualizar um recurso existente
