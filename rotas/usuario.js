@@ -1,13 +1,26 @@
 const { Router } = require("express");
-const { criar, listar } = require("../controller/usuario");
+const {
+  criar,
+  listar,
+  buscarPorId,
+  atualizar,
+  remover,
+} = require("../controller/usuario");
 const router = Router();
 
 // Devolver uma lista de objetos ou um objeto
-router.get("/", async (req, res) => {
+router.get("/:id?", async (req, res) => {
   try {
-    const usuarios = await listar();
+    const { id } = req.params;
+    let resposta;
 
-    res.send(usuarios);
+    if (id) {
+      resposta = await buscarPorId(id);
+    } else {
+      resposta = await listar();
+    }
+
+    res.send(resposta);
   } catch (erro) {
     console.log(erro);
     res.status(500).send({ erro });
@@ -28,15 +41,30 @@ router.post("/", async (req, res) => {
 });
 
 // Atualizar um recurso existente
-router.put("/:id", (req, res) => {
-  let id = req.params.id;
-  res.send("Rota para atualizar recurso " + id);
+router.put("/:id", async (req, res) => {
+  try {
+    let id = req.params.id;
+    let dados = req.body;
+
+    await atualizar(id, dados);
+    const resultado = await buscarPorId(id);
+
+    res.send(resultado);
+  } catch (erro) {
+    res.status(500).send({ erro });
+  }
 });
 
 // Remover recurso existente
-router.delete("/:id", (req, res) => {
-  let id = req.params.id;
-  res.send("Rota para remover recurso " + id);
+router.delete("/:id", async (req, res) => {
+  try {
+    await remover(req.params.id);
+
+    res.send();
+  } catch (erro) {
+    console.log(erro);
+    res.status(500).send({ erro });
+  }
 });
 
 module.exports = router;
