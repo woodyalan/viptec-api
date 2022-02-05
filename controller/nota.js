@@ -1,4 +1,4 @@
-const { Nota, Checklist, sequelize } = require("../bd");
+const { Usuario, Nota, Checklist, sequelize } = require("../bd");
 const controller = {};
 
 controller.criar = async (usuarioId, titulo, descricao, checklists = []) => {
@@ -32,8 +32,48 @@ controller.criar = async (usuarioId, titulo, descricao, checklists = []) => {
     }
 
     await transacao.commit();
+
+    return nota;
   } catch (erro) {
     await transacao.rollback();
+    throw erro;
+  }
+};
+
+controller.buscarPorId = async (id) => {
+  try {
+    return await Nota.findByPk(id, {
+      include: [
+        {
+          model: Usuario,
+          as: "usuario",
+        },
+        {
+          model: Checklist,
+          as: "checklists",
+        },
+      ],
+    });
+  } catch (erro) {
+    throw erro;
+  }
+};
+
+controller.listar = async () => {
+  try {
+    return await Nota.findAll({
+      include: [
+        {
+          model: Usuario,
+          as: "usuario",
+        },
+        {
+          model: Checklist,
+          as: "checklists",
+        },
+      ],
+    });
+  } catch (erro) {
     throw erro;
   }
 };

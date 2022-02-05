@@ -1,14 +1,28 @@
 const { Router } = require("express");
 const router = Router();
-const { criar } = require("../controller/nota");
+const { criar, buscarPorId, listar } = require("../controller/nota");
+
+router.get("/:id?", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const resultado = id ? await buscarPorId(id) : await listar();
+
+    res.send(resultado);
+  } catch (erro) {
+    console.log(erro);
+    res.status(500).send({ erro });
+  }
+});
 
 router.post("/", async (req, res) => {
   try {
     const { usuarioId, titulo, descricao, checklists } = req.body;
 
-    await criar(usuarioId, titulo, descricao, checklists);
+    const notaCriada = await criar(usuarioId, titulo, descricao, checklists);
+    const resultado = await buscarPorId(notaCriada.id);
 
-    res.send();
+    res.send(resultado);
   } catch (erro) {
     console.log(erro);
     res.status(500).send({ erro });
