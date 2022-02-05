@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const router = Router();
-const { criar, buscarPorId, listar } = require("../controller/nota");
+const { criar, buscarPorId, listar, remover } = require("../controller/nota");
 
 router.get("/:id?", async (req, res) => {
   try {
@@ -25,6 +25,18 @@ router.post("/", async (req, res) => {
     res.send(resultado);
   } catch (erro) {
     console.log(erro);
+    res.status(500).send({ erro });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await remover(id);
+
+    res.send();
+  } catch (erro) {
     res.status(500).send({ erro });
   }
 });

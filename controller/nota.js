@@ -78,4 +78,29 @@ controller.listar = async () => {
   }
 };
 
+controller.remover = async (id) => {
+  const transacao = await sequelize.transaction();
+
+  try {
+    await Checklist.destroy({
+      where: {
+        notaId: id,
+      },
+      transaction: transacao,
+    });
+
+    await Nota.destroy({
+      where: {
+        id,
+      },
+      transaction: transacao,
+    });
+
+    await transacao.commit();
+  } catch (erro) {
+    await transacao.rollback();
+    throw erro;
+  }
+};
+
 module.exports = controller;
