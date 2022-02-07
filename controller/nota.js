@@ -103,4 +103,30 @@ controller.remover = async (id) => {
   }
 };
 
+controller.atualizar = async (id, { titulo, descricao }) => {
+  const transacao = await sequelize.transaction();
+  console.log(titulo);
+
+  try {
+    await Nota.update(
+      {
+        titulo,
+        descricao,
+      },
+      {
+        where: {
+          id,
+        },
+        transaction: transacao,
+      }
+    );
+
+    await transacao.commit();
+  } catch (erro) {
+    await transacao.rollback();
+
+    throw erro;
+  }
+};
+
 module.exports = controller;
