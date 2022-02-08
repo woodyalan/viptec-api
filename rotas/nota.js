@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const path = require("path");
 const router = Router();
 const {
   criar,
@@ -23,9 +24,15 @@ router.get("/:id?", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { usuarioId, titulo, descricao, checklists } = req.body;
+    const { usuarioId, titulo, descricao, imagem, checklists } = req.body;
 
-    const notaCriada = await criar(usuarioId, titulo, descricao, checklists);
+    const notaCriada = await criar(
+      usuarioId,
+      titulo,
+      descricao,
+      imagem,
+      checklists
+    );
     const resultado = await buscarPorId(notaCriada.id);
 
     res.send(resultado);
@@ -62,6 +69,29 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.post("/upload", async (req, res) => {});
+router.post("/upload", async (req, res) => {
+  try {
+    const { arquivo } = req.files;
+
+    let diretorio = path.join(__dirname, "../public");
+
+    let nomeArquivo = arquivo.md5;
+    let extensao = arquivo.mimetype.split("/")[1];
+
+    arquivo.mv(`${diretorio}/${nomeArquivo}.${extensao}`, (erro) => {
+      if (erro) {
+        throw erro;
+      }
+
+      res.json({
+        arquivo: `public/${nomeArquivo}.${extensao}`,
+        nomeArquivo: arquivo.name,
+      });
+    });
+  } catch (erro) {
+    console.log(erro);
+    res.status(500).send({ erro });
+  }
+});
 
 module.exports = router;

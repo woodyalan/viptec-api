@@ -1,11 +1,13 @@
 const express = require("express");
+const fileupload = require("express-fileupload");
 const app = express();
 
 app.use(express.json());
+app.use("/public", express.static("public"));
+app.use(fileupload());
 
 const usuario = require("./rotas/usuario");
 const nota = require("./rotas/nota");
-const { sequelize } = require("./bd");
 
 app.get("/", (req, res) => {
   res.send({ mensagem: "Bem vindo" });

@@ -24,6 +24,10 @@ module.exports = (sequelize, DataType) => {
         type: DataType.TEXT,
         allowNull: true,
       },
+      imagem: {
+        type: DataType.STRING(50),
+        allowNull: true,
+      },
     },
     {
       tableName: "nota",

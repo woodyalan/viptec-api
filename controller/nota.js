@@ -1,7 +1,15 @@
+const { unlink } = require("fs");
 const { Usuario, Nota, Checklist, sequelize } = require("../bd");
+const { Op } = require("sequelize");
 const controller = {};
 
-controller.criar = async (usuarioId, titulo, descricao, checklists = []) => {
+controller.criar = async (
+  usuarioId,
+  titulo,
+  descricao,
+  imagem,
+  checklists = []
+) => {
   const transacao = await sequelize.transaction();
 
   try {
@@ -10,6 +18,7 @@ controller.criar = async (usuarioId, titulo, descricao, checklists = []) => {
         usuarioId,
         titulo,
         descricao,
+        imagem,
       },
       {
         transaction: transacao,
@@ -89,12 +98,28 @@ controller.remover = async (id) => {
       transaction: transacao,
     });
 
+    const notaParaRemover = await Nota.findByPk(id);
+    const notasComMesmaImagem = await Nota.findAll({
+      where: {
+        imagem: notaParaRemover.imagem,
+        id: {
+          [Op.notIn]: [id],
+        },
+      },
+    });
+
     await Nota.destroy({
       where: {
         id,
       },
       transaction: transacao,
     });
+
+    if (notaParaRemover.imagem && notasComMesmaImagem.length === 0) {
+      unlink(notaParaRemover.imagem, (erro) => {
+        if (erro) throw erro;
+      });
+    }
 
     await transacao.commit();
   } catch (erro) {
@@ -103,7 +128,7 @@ controller.remover = async (id) => {
   }
 };
 
-controller.atualizar = async (id, { titulo, descricao }) => {
+controller.atualizar = async (id, { titulo, descricao, imagem }) => {
   const transacao = await sequelize.transaction();
   console.log(titulo);
 
@@ -112,6 +137,7 @@ controller.atualizar = async (id, { titulo, descricao }) => {
       {
         titulo,
         descricao,
+        imagem,
       },
       {
         where: {
