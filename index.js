@@ -1,7 +1,9 @@
 const express = require("express");
 const fileupload = require("express-fileupload");
+const morgan = require("morgan");
 const app = express();
 
+app.use(morgan("dev"));
 app.use(express.json());
 app.use("/public", express.static("public"));
 app.use(fileupload());

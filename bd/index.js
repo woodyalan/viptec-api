@@ -1,4 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
+const ambiente = process.env.NODE_ENV;
 let initChecklist = require("./checklist");
 let initUsuario = require("./usuario");
 let initNota = require("./nota");
@@ -10,6 +11,8 @@ const options = {
   dialect: "postgres",
   database: "notes",
 };
+
+if (ambiente === "production") options.logging = false;
 
 const sequelize = new Sequelize(options);
 
@@ -28,5 +31,7 @@ const Usuario = initUsuario(sequelize, DataTypes);
 
 Nota.hasMany(Checklist, { as: "checklists", foreignKey: "notaId" });
 Nota.belongsTo(Usuario, { as: "usuario", foreignKey: "usuarioId" });
+// Produto.belongsTo(Marca, { as: "marca", foreignKey: "marcaId" });
+// Produto.belongsTo(Cor, { as: "cor", foreignKey: "corId" });
 
 module.exports = { sequelize, Sequelize, Checklist, Nota, Usuario };
