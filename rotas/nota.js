@@ -58,8 +58,9 @@ router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const dados = req.body;
+    const { checklists } = req.body;
 
-    await atualizar(id, dados);
+    await atualizar(id, dados, checklists);
     const notaAtualizada = await buscarPorId(id);
 
     res.send(notaAtualizada);

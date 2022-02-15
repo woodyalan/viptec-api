@@ -1,6 +1,7 @@
 const { unlink } = require("fs");
 const { Usuario, Nota, Checklist, sequelize } = require("../bd");
 const { Op } = require("sequelize");
+const checklist = require("../bd/checklist");
 const controller = {};
 
 controller.criar = async (
@@ -128,9 +129,12 @@ controller.remover = async (id) => {
   }
 };
 
-controller.atualizar = async (id, { titulo, descricao, imagem }) => {
+controller.atualizar = async (
+  id,
+  { titulo, descricao, imagem },
+  checklists
+) => {
   const transacao = await sequelize.transaction();
-  console.log(titulo);
 
   try {
     await Nota.update(
@@ -146,6 +150,46 @@ controller.atualizar = async (id, { titulo, descricao, imagem }) => {
         transaction: transacao,
       }
     );
+
+    await Checklist.destroy({
+      where: {
+        notaId: id,
+        id: {
+          [Op.notIn]: checklists.filter((i) => i.id).map((i) => i.id),
+        },
+      },
+      transaction: transacao,
+    });
+
+    if (checklists && checklists.length > 0) {
+      for (const item of checklists) {
+        if (item.id) {
+          await Checklist.update(
+            {
+              descricao: item.descricao,
+              concluido: item.concluido,
+            },
+            {
+              where: {
+                id: item.id,
+              },
+              transaction: transacao,
+            }
+          );
+        } else {
+          await Checklist.create(
+            {
+              notaId: id,
+              descricao: item.descricao,
+              concluido: item.concluido,
+            },
+            {
+              transaction: transacao,
+            }
+          );
+        }
+      }
+    }
 
     await transacao.commit();
   } catch (erro) {
