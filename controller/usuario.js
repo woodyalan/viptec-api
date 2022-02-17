@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const { Usuario } = require("../bd");
 const { palavraChave } = require("../config");
 
@@ -74,7 +75,9 @@ controller.login = async (email, senha) => {
       },
     });
 
-    if (usuario.senha != senha) return false;
+    const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+
+    if (!senhaCorreta) return false;
 
     return jwt.sign({ id: usuario.id }, palavraChave, {
       expiresIn: "3h",
