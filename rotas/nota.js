@@ -12,8 +12,11 @@ const {
 router.get("/:id?", async (req, res) => {
   try {
     const { id } = req.params;
+    const { usuarioId } = req;
 
-    const resultado = id ? await buscarPorId(id) : await listar();
+    const resultado = id
+      ? await buscarPorId(id, usuarioId)
+      : await listar(usuarioId);
 
     res.send(resultado);
   } catch (erro) {
@@ -24,7 +27,8 @@ router.get("/:id?", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { usuarioId, titulo, descricao, imagem, checklists } = req.body;
+    const { usuarioId } = req;
+    const { titulo, descricao, imagem, checklists } = req.body;
 
     const notaCriada = await criar(
       usuarioId,
@@ -33,7 +37,8 @@ router.post("/", async (req, res) => {
       imagem,
       checklists
     );
-    const resultado = await buscarPorId(notaCriada.id);
+
+    const resultado = await buscarPorId(notaCriada.id, usuarioId);
 
     res.send(resultado);
   } catch (erro) {
@@ -56,12 +61,13 @@ router.delete("/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
+    const { usuarioId } = req;
     const { id } = req.params;
     const dados = req.body;
     const { checklists } = req.body;
 
     await atualizar(id, dados, checklists);
-    const notaAtualizada = await buscarPorId(id);
+    const notaAtualizada = await buscarPorId(id, usuarioId);
 
     res.send(notaAtualizada);
   } catch (erro) {

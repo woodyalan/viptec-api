@@ -50,9 +50,13 @@ controller.criar = async (
   }
 };
 
-controller.buscarPorId = async (id) => {
+controller.buscarPorId = async (id, usuarioId) => {
   try {
-    return await Nota.findByPk(id, {
+    return await Nota.findOne({
+      where: {
+        id,
+        usuarioId,
+      },
       include: [
         {
           model: Usuario,
@@ -69,9 +73,12 @@ controller.buscarPorId = async (id) => {
   }
 };
 
-controller.listar = async () => {
+controller.listar = async (usuarioId) => {
   try {
     return await Nota.findAll({
+      where: {
+        usuarioId,
+      },
       include: [
         {
           model: Usuario,
