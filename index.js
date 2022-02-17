@@ -10,11 +10,11 @@ app.use(fileupload());
 
 const usuario = require("./rotas/usuario");
 const nota = require("./rotas/nota");
+const login = require("./rotas/login");
+const tokenVerify = require("./middleware/tokenVerify");
 
-app.get("/", (req, res) => {
-  res.send({ mensagem: "Bem vindo" });
-});
-
+app.use("/login", login);
+app.use(tokenVerify);
 app.use("/usuario", usuario);
 app.use("/nota", nota);
 

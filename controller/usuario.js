@@ -1,4 +1,6 @@
+const jwt = require("jsonwebtoken");
 const { Usuario } = require("../bd");
+const { palavraChave } = require("../config");
 
 let controller = {};
 
@@ -58,6 +60,24 @@ controller.remover = async (id) => {
       where: {
         id,
       },
+    });
+  } catch (erro) {
+    throw erro;
+  }
+};
+
+controller.login = async (email, senha) => {
+  try {
+    const usuario = await Usuario.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (usuario.senha != senha) return false;
+
+    return jwt.sign({ id: usuario.id }, palavraChave, {
+      expiresIn: "3h",
     });
   } catch (erro) {
     throw erro;
