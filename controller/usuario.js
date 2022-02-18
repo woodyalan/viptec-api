@@ -20,7 +20,6 @@ controller.criar = async (nome, email, senha) => {
 controller.listar = async () => {
   try {
     return await Usuario.findAll({
-      attributes: ["id", "nome", "email"],
       order: [["nome", "ASC"]],
     });
   } catch (erro) {
@@ -69,7 +68,7 @@ controller.remover = async (id) => {
 
 controller.login = async (email, senha) => {
   try {
-    const usuario = await Usuario.findOne({
+    const usuario = await Usuario.scope("login").findOne({
       where: {
         email,
       },

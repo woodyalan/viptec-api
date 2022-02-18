@@ -33,6 +33,16 @@ module.exports = (sequelize, DataType) => {
             usuario.senha = bcrypt.hashSync(usuario.senha, saltos);
         },
       },
+      defaultScope: {
+        attributes: {
+          exclude: ["senha"],
+        },
+      },
+      scopes: {
+        login: {
+          attributes: ["id", "senha"],
+        },
+      },
     }
   );
 
