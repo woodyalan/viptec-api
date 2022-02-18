@@ -68,11 +68,7 @@ controller.remover = async (id) => {
 
 controller.login = async (email, senha) => {
   try {
-    const usuario = await Usuario.scope("login").findOne({
-      where: {
-        email,
-      },
-    });
+    const usuario = await controller.buscarPorEmail(email);
 
     const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
 
@@ -81,6 +77,18 @@ controller.login = async (email, senha) => {
     return jwt.sign({ id: usuario.id }, palavraChave, {
       expiresIn: "3h",
     });
+  } catch (erro) {
+    throw erro;
+  }
+};
+
+controller.buscarPorEmail = async (email) => {
+  try {
+    return (usuario = await Usuario.scope("login").findOne({
+      where: {
+        email,
+      },
+    }));
   } catch (erro) {
     throw erro;
   }
