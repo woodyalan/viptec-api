@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const router = Router();
-const { login, buscarPorEmail } = require("../controller/usuario");
+const { login, buscarPorEmail, atualizar } = require("../controller/usuario");
+const { send } = require("../controller/mail");
 
 router.post("/", async (req, res) => {
   try {
@@ -25,12 +26,30 @@ router.post("/esqueci", async (req, res) => {
 
     const usuario = await buscarPorEmail(email);
 
-    if (usuario.id) {
-      //gerar uma senha temporária
-      //enviar senha temporária via email
+    if (usuario) {
+      const novaSenha = (Math.random() + 1).toString(36).substring(7);
+
+      await atualizar(usuario.id, { senha: novaSenha });
+
+      const from = '"API da Viptec" <viptecapi@gmail.com>';
+      const subject = "Recuperação de Senha";
+      const html = `
+        <p>Olá!</p>
+
+        <p>Utilize sua senha temporária para acessar: <strong>${novaSenha}</strong></p>
+        
+        <br>
+        --
+        <p><strong>Viptec API</strong></p>`;
+
+      await send(from, email, subject, html);
+
+      return res.send({
+        sucesso: `A senha foi enviada para o e-mail ${email}`,
+      });
     }
 
-    res.send({ email });
+    res.status(400).send({ erro: "E-mail informado é inválido" });
   } catch (erro) {
     console.log(erro);
     res.status(500).send({ erro });

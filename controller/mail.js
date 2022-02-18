@@ -18,6 +18,8 @@ controller.send = async (from, to, subject, html) => {
     const mailInfo = await transporter.sendMail({ from, to, subject, html });
 
     console.log("E-mail enviado com sucesso: ", mailInfo.messageId);
+
+    return mailInfo;
   } catch (erro) {
     console.log("Falhao ao enviar e-mail: ", erro);
 
