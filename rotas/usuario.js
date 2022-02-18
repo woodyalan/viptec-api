@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { check, validationResult } = require("express-validator");
 const {
   criar,
   listar,
@@ -9,7 +10,13 @@ const {
 const router = Router();
 
 // Devolver uma lista de objetos ou um objeto
-router.get("/:id?", async (req, res) => {
+router.get("/:id?", check("id").optional().isInt(), async (req, res) => {
+  const erros = validationResult(req);
+
+  if (!erros.isEmpty()) {
+    return res.status(400).send({ erros });
+  }
+
   try {
     const { id } = req.params;
     let resposta;

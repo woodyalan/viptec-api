@@ -1,24 +1,36 @@
 const { Router } = require("express");
+const { body, validationResult } = require("express-validator");
 const router = Router();
 const { login, buscarPorEmail, atualizar } = require("../controller/usuario");
 const { send } = require("../controller/mail");
 
-router.post("/", async (req, res) => {
-  try {
-    const { email, senha } = req.body;
+router.post(
+  "/",
+  body("email").isEmail().not().isEmpty(),
+  body("senha").not().isEmpty(),
+  async (req, res) => {
+    const erros = validationResult(req);
 
-    const token = await login(email, senha);
-
-    if (token) {
-      res.send({ token });
-    } else {
-      res.status(401).send({ erro: "Login ou senha inválidos" });
+    if (!erros.isEmpty()) {
+      return res.status(400).json({ erros });
     }
-  } catch (erro) {
-    console.log(erro);
-    res.status(500).send({ erro });
+
+    try {
+      const { email, senha } = req.body;
+
+      const token = await login(email, senha);
+
+      if (token) {
+        res.send({ token });
+      } else {
+        res.status(401).send({ erro: "Login ou senha inválidos" });
+      }
+    } catch (erro) {
+      console.log(erro);
+      res.status(500).send({ erro });
+    }
   }
-});
+);
 
 router.post("/esqueci", async (req, res) => {
   try {
